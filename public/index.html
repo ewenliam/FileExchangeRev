@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Exchange System</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <h1>File Exchange System</h1>
+
+  <div id="authDiv">
+    <input type="text" id="username" placeholder="Enter username">
+    <input type="password" id="password" placeholder="Enter password">
+    <button id="registerButton">Register</button>
+    <button id="loginButton">Login</button>
+    <p id="authMessage"></p>
+  </div>
+
+  <div id="fileExchangeDiv" style="display: none;">
+    <input type="file" id="fileInput">
+    <input type="text" id="recipientId" placeholder="Enter recipient username">
+    <button id="sendFileButton">Send File</button>
+    <ul id="fileList"></ul>
+    <br>
+    <input type="text" id="statusUserId" placeholder="Enter user ID to check status">
+    <button id="checkStatusButton">Check Status</button>
+    <p id="statusResult"></p>
+    <br>
+    <input type="number" id="fileSizeLimit" placeholder="Set file size limit (bytes)">
+    <button id="setFileSizeLimitButton">Set File Size Limit</button>
+    <br>
+    <h2>Online Users</h2>
+    <ul id="onlineUsersList"></ul>
+  </div>
+
+  <script>
+    const socket = io();
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const registerButton = document.getElementById('registerButton');
+    const loginButton = document.getElementById('loginButton');
+    const authMessage = document.getElementById('authMessage');
+    const fileInput = document.getElementById('fileInput');
+    const recipientId = document.getElementById('recipientId');
+    const sendFileButton = document.getElementById('sendFileButton');
+    const fileList = document.getElementById('fileList');
+    const statusUserId = document.getElementById('statusUserId');
+    const checkStatusButton = document.getElementById('checkStatusButton');
+    const statusResult = document.getElementById('statusResult');
+    const fileSizeLimit = document.getElementById('fileSizeLimit');
+    const setFileSizeLimitButton = document.getElementById('setFileSizeLimitButton');
+    const authDiv = document.getElementById('authDiv');
+    const fileExchangeDiv = document.getElementById('fileExchangeDiv');
+    const onlineUsersList = document.getElementById('onlineUsersList');
+
+    registerButton.addEventListener('click', () => {
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(response => response.json())
+      .then(data => {
+        authMessage.textContent = data.message || data.error;
+      })
+      .catch(error => {
+        console.error('Error during registration:', error);
+      });
+    });
+
+    loginButton.addEventListener('click', () => {
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+
+      fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message === 'Login successful') {
+          authDiv.style.display = 'none';
+          fileExchangeDiv.style.display = 'block';
+          socket.emit('login', username);
+        } else {
+          authMessage.textContent = data.error;
+        }
+      })
+      .catch(error => {
+        console.error('Error during login:', error);
+      });
+    });
+
+    sendFileButton.addEventListener('click', () => {
+      const file = fileInput.files[0];
+      const recipient = recipientId.value.trim();
+      if (file && recipient) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch(`/upload/${socket.id}`, {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          socket.emit('sendFile', { to: recipient, fileName: file.name, filePath: data.filePath });
+        })
+        .catch(error => {
+          console.error('Error uploading file:', error);
+        });
+      }
+    });
+
+    socket.on('receiveFile', (data) => {
+      const listItem = document.createElement('li');
+      listItem.textContent = `File received from ${data.from}: ${data.fileName} - `;
+      const link = document.createElement('a');
+      link.href = data.filePath;
+      link.textContent = 'Download';
+      listItem.appendChild(link);
+      fileList.appendChild(listItem);
+    });
+
+    checkStatusButton.addEventListener('click', () => {
+      const userId = statusUserId.value.trim();
+      if (userId) {
+        socket.emit('checkStatus', userId, (response) => {
+          statusResult.textContent = `User ${userId} is ${response.status}`;
+        });
+      }
+    });
+
+    setFileSizeLimitButton.addEventListener('click', () => {
+      const limit = parseInt(fileSizeLimit.value, 10);
+      if (!isNaN(limit)) {
+        socket.emit('setFileSizeLimit', limit);
+      }
+    });
+
+    socket.on('userList', (users) => {
+      onlineUsersList.innerHTML = '';
+      users.forEach(user => {
+        const listItem = document.createElement('li');
+        listItem.textContent = user;
+        onlineUsersList.appendChild(listItem);
+      });
+    });
+  </script>
+</body>
+</html>

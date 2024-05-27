@@ -1,0 +1,130 @@
+/* General Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  h1 {
+    color: #007BFF;
+    margin-bottom: 20px;
+    text-align: center;
+    width: 100%;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 10px;
+  }
+  
+  input, button {
+    margin: 10px 0;
+    padding: 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  input {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+  }
+  
+  input:focus {
+    border-color: #007BFF;
+    outline: none;
+  }
+  
+  button {
+    border: none;
+    border-radius: 5px;
+    background-color: #007BFF;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+  }
+  
+  button:active {
+    background-color: #004494;
+  }
+  
+  /* Auth and File Exchange Containers */
+  #authDiv, #fileExchangeDiv {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+    transition: opacity 0.3s ease;
+  }
+  
+  #fileExchangeDiv {
+    display: none;
+  }
+  
+  p {
+    color: red;
+    font-size: 14px;
+  }
+  
+  /* File List and Online Users List */
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  li {
+    background: #e9e9e9;
+    margin: 5px 0;
+    padding: 10px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  li a {
+    color: #007BFF;
+    text-decoration: none;
+  }
+  
+  li a:hover {
+    text-decoration: underline;
+  }
+  
+  /* File Input */
+  #fileInput {
+    border: none;
+    margin-top: 10px;
+  }
+  
+  /* Media Queries for Responsiveness */
+  @media (max-width: 600px) {
+    body {
+      padding: 20px;
+    }
+    
+    input, button {
+      width: calc(100% - 20px);
+    }
+  
+    #authDiv, #fileExchangeDiv {
+      width: calc(100% - 40px);
+    }
+  }
+  
