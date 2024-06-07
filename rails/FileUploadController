@@ -1,0 +1,11 @@
+class Api::FileUploadsController < ApplicationController
+  def create
+    user_id = params[:user_id]
+    file_path = params[:file_path]
+    
+    # Handle the file upload notification
+    # This can include saving details to a database or notifying users
+    
+    render json: { message: 'File upload received' }
+  end
+end
